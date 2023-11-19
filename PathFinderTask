@@ -1,0 +1,45 @@
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+
+namespace RoutePlanning
+{
+    public static class PathFinderTask
+    {
+        public static int[] FindBestCheckpointsOrder(Point[] checkpoints)
+        {
+            var len = checkpoints.Length;
+            var bestOrder = new int[len];
+            for (var i = 0; i < len; i++)
+                bestOrder[i] = i;
+            if (len == 1) return bestOrder.ToArray();
+            var minLength = double.MaxValue;
+            minLength = MakeTrivialPermutation(bestOrder, 1, minLength, checkpoints, bestOrder);
+            return bestOrder;
+        }
+
+        private static double MakeTrivialPermutation(int[] permutation, int position, double minLength, Point[] checkpoints, int[] bestOrder)
+        {
+
+            if (position == permutation.Length)
+            {
+                if (checkpoints.GetPathLength(permutation) < minLength)
+                {
+                    minLength = checkpoints.GetPathLength(permutation);
+                    bestOrder = permutation;
+                }
+            }
+            for (var i = 1; i < permutation.Length; i++)
+            {
+                var index = Array.IndexOf(permutation, i, 1, position - 1);
+                if (index == -1)
+                {
+                    permutation[position] = i;
+                    return MakeTrivialPermutation(permutation, position + 1, minLength, checkpoints, bestOrder);
+                }
+            }
+            return minLength;
+        }
+    }
+}
